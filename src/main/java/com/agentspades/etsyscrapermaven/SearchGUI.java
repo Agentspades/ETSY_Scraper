@@ -4,7 +4,7 @@
  * Purpose: Scrape etsy search results to show listing tags
  * Author: Agentspades
  * Date: 1 Jul 2021
- * ToDo: Finish About JOptionPane
+ * ToDo: 
  */
 package com.agentspades.etsyscrapermaven;
 
