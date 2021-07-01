@@ -4,7 +4,7 @@
  * Purpose: get the users proxy settings
  * Author: Agentspades
  * Date: 1 Jul 2021
- * ToDo:
+ * ToDo: Validate IP input
  */
 package com.agentspades.etsyscrapermaven;
 

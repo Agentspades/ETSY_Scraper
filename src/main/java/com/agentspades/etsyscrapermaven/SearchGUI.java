@@ -4,7 +4,7 @@
  * Purpose: Scrape etsy search results to show listing tags
  * Author: Agentspades
  * Date: 1 Jul 2021
- * ToDo:
+ * ToDo: Finish About JOptionPane
  */
 package com.agentspades.etsyscrapermaven;
 
@@ -25,7 +25,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import com.agentspades.etsyscrapermaven.SearchGUI;
+import javax.swing.JOptionPane;
 
 public class SearchGUI extends javax.swing.JFrame {
 
@@ -128,6 +128,8 @@ public class SearchGUI extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ETSY | Scraper");
@@ -175,8 +177,6 @@ public class SearchGUI extends javax.swing.JFrame {
                 "Title 1", "Title 2"
             }
         ));
-        results_JTable.setShowHorizontalLines(true);
-        results_JTable.setShowVerticalLines(true);
         jScrollPane2.setViewportView(results_JTable);
 
         top_JTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -196,8 +196,6 @@ public class SearchGUI extends javax.swing.JFrame {
                 "Title 1", "Title 2"
             }
         ));
-        top_JTable.setShowHorizontalLines(true);
-        top_JTable.setShowVerticalLines(true);
         jScrollPane3.setViewportView(top_JTable);
 
         top_JLabel.setFont(new java.awt.Font("sansserif", 0, 18)); // NOI18N
@@ -214,6 +212,18 @@ public class SearchGUI extends javax.swing.JFrame {
         jMenu1.add(jMenuItem1);
 
         jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Help");
+
+        jMenuItem2.setText("About");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -295,7 +305,7 @@ public class SearchGUI extends javax.swing.JFrame {
                 progress_JTextArea.setText("");
             }//end if
             //display the search URL in the JTextArea
-            progress_JTextArea.append("Proccessing: " +searchUrl);
+            progress_JTextArea.setText("Proccessing: " +searchUrl);
             //start a new thread
             new Thread(new scrapeHtmlUnit()).start();
         }//end outer if
@@ -319,7 +329,7 @@ public class SearchGUI extends javax.swing.JFrame {
     /**********************************************************/
     private void reset_JButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reset_JButtonActionPerformed
         //reset the searchUrl
-        searchUrl = "https://www.etsy.com/au/search?q=";
+        searchUrl = "https://www.etsy.com/search?q=";
         //set the fields to blank
         progress_JTextArea.setText("");
         search_JTextField.setText("");
@@ -335,6 +345,19 @@ public class SearchGUI extends javax.swing.JFrame {
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         new proxySettingsGUI().setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        //store the about message in a String variable
+        String aboutText = "This program has been created by Agentspades "
+                + "(July, 2021) under the GNU/GPL V3.0 license."
+                + "\nusing the below third party library"
+                + "\n\nHtmlUnit v2.5.0 \nhttps://htmlunit.sourceforge.io"
+                + "\n\nContact: Agentspades@gmail.com"
+                + "\nhttps://github.com/Agentspades/ETSY_Scraper";
+        //show a JOptionPane with about info
+        JOptionPane.showMessageDialog(null, aboutText, "About", 
+                JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**********************************************************/
     // Method:	  public void clearTable()
@@ -371,8 +394,6 @@ public class SearchGUI extends javax.swing.JFrame {
     /**********************************************************/
     private class scrapeHtmlUnit implements Runnable{
         public void run(){
-            //clear the progress window
-            progress_JTextArea.setText("");
             //decalre variables
             HtmlPage resultsPage = null;
             List<String> linkList = new LinkedList<String>();
@@ -384,7 +405,7 @@ public class SearchGUI extends javax.swing.JFrame {
             //this is to fetch more results to overcome the infinite scrolling
             client.getOptions().setScreenHeight(600000);
             //if if a proxy has been specified if not then use the users IP
-            if(!proxyIP.isEmpty() && proxyPort != 0){
+            if(proxyIP == null && proxyPort != 0){
                 ProxyConfig proxyConfig = new ProxyConfig(proxyIP, proxyPort, null);
                 client.getOptions().setProxyConfig(proxyConfig);
             }//end if
@@ -414,9 +435,8 @@ public class SearchGUI extends javax.swing.JFrame {
                     //set progress text
                     progress_JTextArea.setText(progress_JTextArea.getText()+ 
                             "\nScraping ...");
-                    //clear the tables
+                    //clear the table
                     clearTable(1);
-                    clearTable(2);
                     //loop through each link fetched from the search results
                     for(String link : linkList){
                         //set String variables to blank
@@ -469,6 +489,8 @@ public class SearchGUI extends javax.swing.JFrame {
             //set progress text
             progress_JTextArea.setText(progress_JTextArea.getText()+ 
                     "\nSequence Complete!");
+            //reset the searchUrl
+            searchUrl = "https://www.etsy.com/search?q=";
             //end the thread
             return;
         }//end run()
@@ -481,6 +503,8 @@ public class SearchGUI extends javax.swing.JFrame {
     // Outputs:   void
     /**********************************************************/
     private void countTags(){
+        //clear the top tags table
+        clearTable(2);
         //set progress text
         progress_JTextArea.setText(progress_JTextArea.getText()+ "\nCounting the tags used");
         //declare empty String variables
@@ -605,8 +629,10 @@ public class SearchGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
